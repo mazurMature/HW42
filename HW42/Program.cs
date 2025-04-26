@@ -61,7 +61,7 @@ namespace HW42
         public int Damage { get; protected set; }
         public int Armor { get; protected set; }
 
-        public abstract void Attack(Fighter target);
+        public abstract void Attack(IDamageable target);
 
         public virtual void TakeDamage(int damage)
         {
@@ -85,7 +85,7 @@ namespace HW42
 
         public CriticalHitFighter(string name) : base(name, 100, 20, 5) { }
 
-        public override void Attack(Fighter target)
+        public override void Attack(IDamageable target)
         {
             int damage;
 
@@ -114,7 +114,7 @@ namespace HW42
 
         public DoubleAttackFighter(string name) : base(name, 100, 18, 6) { }
 
-        public override void Attack(Fighter target)
+        public override void Attack(IDamageable target)
         {
             _attackCounter++;
 
@@ -145,7 +145,7 @@ namespace HW42
 
         public RageFighter(string name) : base(name, 120, 15, 8) { }
 
-        public override void Attack(Fighter target)
+        public override void Attack(IDamageable target)
         {
             target.TakeDamage(Damage);
         }
@@ -182,7 +182,7 @@ namespace HW42
 
         public MageFighter(string name) : base(name, 90, 17, 4) { }
 
-        public override void Attack(Fighter target)
+        public override void Attack(IDamageable target)
         {
             if (_mana >= _fireballCost)
             {
@@ -213,7 +213,7 @@ namespace HW42
 
         public DodgeFighter(string name) : base(name, 110, 16, 7) { }
 
-        public override void Attack(Fighter target)
+        public override void Attack(IDamageable target)
         {
             target.TakeDamage(Damage);
         }
