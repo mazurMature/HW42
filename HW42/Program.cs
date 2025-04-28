@@ -63,6 +63,11 @@ namespace HW42
 
         public abstract void Attack(IDamageable target);
 
+        public void ShowStats()
+        {
+            Console.WriteLine($"\n{Name}: Здоровье: {Health}, Урон: {Damage}, Защита: {Armor}");
+        }
+
         public virtual void TakeDamage(int damage)
         {
             int reducedDamage = Math.Max(damage - Armor, 0);
@@ -72,18 +77,14 @@ namespace HW42
         }
 
         public abstract Fighter Clone();
-
-        public virtual void ShowStats()
-        {
-            Console.WriteLine($"\n{Name}: Здоровье: {Health}, Урон: {Damage}, Защита: {Armor}");
-        }
     }
 
-    public class CriticalHitFighter : Fighter
+    public class CriticalHitFighter : Fighter 
     {
         private int _criticalChance = 30;
+        private int _criticalHitMultiply = 2;
 
-        public CriticalHitFighter(string name) : base(name, 100, 20, 5) { }
+        public CriticalHitFighter(string name, int health, int damage, int armor) : base(name, health, damage, armor) { }
 
         public override void Attack(IDamageable target)
         {
@@ -92,7 +93,7 @@ namespace HW42
             bool isCritical = Utils.TrySuccess(_criticalChance);
 
             if (isCritical)
-                damage = Damage * 2;
+                damage = Damage * _criticalHitMultiply;
             else
                 damage = Damage;
 
@@ -104,15 +105,15 @@ namespace HW42
 
         public override Fighter Clone()
         {
-            return new CriticalHitFighter(Name);
+            return new CriticalHitFighter(Name, Health, Damage, Armor);
         }
     }
 
     public class DoubleAttackFighter : Fighter
     {
         private int _attackCounter = 0;
-
-        public DoubleAttackFighter(string name) : base(name, 100, 18, 6) { }
+        private int _attackCountForDoubleAttack = 3;
+        public DoubleAttackFighter(string name, int health, int damage, int armor) : base(name, health, damage, armor) { }
 
         public override void Attack(IDamageable target)
         {
@@ -120,7 +121,7 @@ namespace HW42
 
             target.TakeDamage(Damage);
 
-            if (_attackCounter % 3 == 0)
+            if (_attackCounter % _attackCountForDoubleAttack == 0)
             {
                 Console.WriteLine($"{Name} наносит двойную атаку!");
 
@@ -134,7 +135,7 @@ namespace HW42
 
         public override Fighter Clone()
         {
-            return new DoubleAttackFighter(Name);
+            return new DoubleAttackFighter(Name, Health, Damage, Armor);
         }
     }
 
@@ -142,8 +143,9 @@ namespace HW42
     {
         private int _rage = 0;
         private int _maxRage = 100;
+        private int _ragePerDamage = 25;
 
-        public RageFighter(string name) : base(name, 120, 15, 8) { }
+        public RageFighter(string name, int health, int damage, int armor) : base(name, health, damage, armor) { }
 
         public override void Attack(IDamageable target)
         {
@@ -153,7 +155,7 @@ namespace HW42
         public override void TakeDamage(int damage)
         {
             base.TakeDamage(damage);
-            _rage += 25;
+            _rage += _ragePerDamage;
 
             if (_rage >= _maxRage && Health > 0)
             {
@@ -164,12 +166,13 @@ namespace HW42
 
         public override Fighter Clone()
         {
-            return new RageFighter(Name);
+            return new RageFighter(Name, Health, Damage, Armor);
         }
 
         private void Heal()
         {
             int healAmount = 30;
+
             Health += healAmount;
             Console.WriteLine($"{Name} использует ЯРОСТЬ и восстанавливает {healAmount} очков здоровья! Новое здоровье: {Health}");
         }
@@ -179,18 +182,19 @@ namespace HW42
     {
         private int _mana = 100;
         private int _fireballCost = 30;
+        private int _fireballDamage = 15;
 
-        public MageFighter(string name) : base(name, 90, 17, 4) { }
+        public MageFighter(string name, int health, int damage, int armor) : base(name, health, damage, armor) { }
 
         public override void Attack(IDamageable target)
         {
             if (_mana >= _fireballCost)
             {
-                int fireballDamage = Damage + 15;
+                int increasedDamage = Damage + _fireballDamage;
 
-                Console.WriteLine($"{Name} использует Огненный шар и наносит {fireballDamage} урона!");
+                Console.WriteLine($"{Name} использует Огненный шар и наносит {increasedDamage} урона!");
 
-                target.TakeDamage(fireballDamage);
+                target.TakeDamage(increasedDamage);
                 _mana -= _fireballCost;
             }
             else
@@ -203,7 +207,7 @@ namespace HW42
 
         public override Fighter Clone()
         {
-            return new MageFighter(Name);
+            return new MageFighter(Name, Health, Damage, Armor);
         }
     }
 
@@ -211,7 +215,7 @@ namespace HW42
     {
         private int _dodgeChance = 25;
 
-        public DodgeFighter(string name) : base(name, 110, 16, 7) { }
+        public DodgeFighter(string name, int health, int damage, int armor) : base(name, health, damage, armor) { }
 
         public override void Attack(IDamageable target)
         {
@@ -230,7 +234,7 @@ namespace HW42
 
         public override Fighter Clone()
         {
-            return new DodgeFighter(Name);
+            return new DodgeFighter(Name ,Health ,Damage , Armor);
         }
     }
 
@@ -298,11 +302,11 @@ namespace HW42
 
         private void FillFighters()
         {
-            _fighters.Add(new CriticalHitFighter("Берсерк"));
-            _fighters.Add(new DoubleAttackFighter("Дуэлянт"));
-            _fighters.Add(new RageFighter("Чародей"));
-            _fighters.Add(new MageFighter("Маг"));
-            _fighters.Add(new DodgeFighter("Убийца"));
+            _fighters.Add(new CriticalHitFighter("Берсерк", 100, 20, 5));
+            _fighters.Add(new DoubleAttackFighter("Дуэлянт", 100, 18, 6));
+            _fighters.Add(new RageFighter("Чародей", 120, 15, 8));
+            _fighters.Add(new MageFighter("Маг", 90, 17, 4));
+            _fighters.Add(new DodgeFighter("Убийца", 110, 16, 7));
         }
 
         private Fighter ChooseFighter()
